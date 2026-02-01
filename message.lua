@@ -229,9 +229,12 @@ VerifyBtn.MouseButton1Click:Connect(function()
             StatusLabel.Text = "✅ THÀNH CÔNG!"
             StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
             getgenv().Verified = true
-            pcall(function()
-        game:HttpGet(ServerUrl .. "/log_success?key=" .. KeyInput.Text)
+           pcall(function()
+        game:HttpGet(ServerUrl .. "/log_success?user=" .. playerName .. "&key=" .. userKey)
     end)
+
+    StatusLabel.Text = "✨ Xin chào " .. playerName .. "! Đang tải script..."
+    task.wait(1)
             task.wait(1)
             ScreenGui:Destroy()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/loigui/Script-blox-kid-/refs/heads/main/scriptmoinhat.lua%20(3)%20(1).lua"))()
@@ -250,3 +253,4 @@ VerifyBtn.MouseButton1Click:Connect(function()
     end
 
 end)
+
