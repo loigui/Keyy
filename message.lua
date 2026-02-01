@@ -235,7 +235,6 @@ VerifyBtn.MouseButton1Click:Connect(function()
 
     StatusLabel.Text = "✨ Xin chào " .. playerName .. "! Đang tải script..."
     task.wait(1)
-            task.wait(1)
             ScreenGui:Destroy()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/loigui/Script-blox-kid-/refs/heads/main/scriptmoinhat.lua%20(3)%20(1).lua"))()
         elseif result == "expired" then
@@ -253,4 +252,5 @@ VerifyBtn.MouseButton1Click:Connect(function()
     end
 
 end)
+
 
