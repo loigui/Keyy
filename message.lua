@@ -1,6 +1,6 @@
 -- Cấu hình hệ thống
 
-local ServerUrl = "https://posting-isa-observer-stars.trycloudflare.com"
+local ServerUrl = "https://acc-metals-meeting-hose.trycloudflare.com"
 
 local DiscordLink = "https://discord.gg/mnggRFxdeF"
 
@@ -229,6 +229,9 @@ VerifyBtn.MouseButton1Click:Connect(function()
             StatusLabel.Text = "✅ THÀNH CÔNG!"
             StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
             getgenv().Verified = true
+            pcall(function()
+        game:HttpGet(ServerUrl .. "/log_success?key=" .. KeyInput.Text)
+    end)
             task.wait(1)
             ScreenGui:Destroy()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/loigui/Script-blox-kid-/refs/heads/main/scriptmoinhat.lua%20(3)%20(1).lua"))()
@@ -245,4 +248,5 @@ VerifyBtn.MouseButton1Click:Connect(function()
         StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
         warn("Loi ket noi: " .. tostring(result))
     end
+
 end)
