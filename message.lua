@@ -1,19 +1,28 @@
--- Cấu hình hệ thống
-local ServerUrl = "https://acc-metals-meeting-hose.trycloudflare.com"
+-- ============================================================
+-- 1. CẤU HÌNH TỰ ĐỘNG CẬP NHẬT LINK & THÔNG TIN
+-- ============================================================
+local LinkFile = "https://raw.githubusercontent.com/loigui/Keyy/main/server_link.txt"
 local DiscordLink = "https://discord.gg/mnggRFxdeF"
 local MainScript = "https://raw.githubusercontent.com/loigui/Script-blox-kid-/refs/heads/main/scriptmoinhat.lua%20(3)%20(1).lua"
 
--- Lấy thông tin người chơi
+-- Tự động lấy Link Tunnel mới nhất từ GitHub
+local LinkSuccess, LinkResult = pcall(function()
+    return game:HttpGet(LinkFile)
+end)
+
+local ServerUrl = LinkSuccess and LinkResult:gsub("%s+", "") or ""
 local Player = game:GetService("Players").LocalPlayer
 local playerName = Player.Name
 
--- Tạo ScreenGui
+-- ============================================================
+-- 2. KHỞI TẠO GUI (VERIFY + AI CHAT)
+-- ============================================================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CustomKeySystem"
+ScreenGui.Name = "UltraSystem_V2"
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ResetOnSpawn = false
 
--- Khung chính (Main Frame)
+-- --- KHUNG XÁC THỰC (MainFrame) ---
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 350, 0, 220)
@@ -28,7 +37,6 @@ local Corner = Instance.new("UICorner")
 Corner.CornerRadius = UDim.new(0, 12)
 Corner.Parent = MainFrame
 
--- Tiêu đề
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.Text = "🛡️ VERIFY SYSTEM"
@@ -38,23 +46,17 @@ Title.TextSize = 18
 Title.BackgroundTransparency = 1
 Title.Parent = MainFrame
 
--- Ô nhập Key
 local KeyInput = Instance.new("TextBox")
 KeyInput.Size = UDim2.new(0, 280, 0, 40)
 KeyInput.Position = UDim2.new(0.5, -140, 0, 60)
 KeyInput.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
-KeyInput.Text = getgenv().Key or ""
 KeyInput.PlaceholderText = "Nhập Key tại đây..."
 KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyInput.Font = Enum.Font.Gotham
 KeyInput.TextSize = 14
 KeyInput.Parent = MainFrame
+Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 8)
 
-local InputCorner = Instance.new("UICorner")
-InputCorner.CornerRadius = UDim.new(0, 8)
-InputCorner.Parent = KeyInput
-
--- Nút Xác Thực
 local VerifyBtn = Instance.new("TextButton")
 VerifyBtn.Size = UDim2.new(0, 280, 0, 40)
 VerifyBtn.Position = UDim2.new(0.5, -140, 0, 110)
@@ -64,11 +66,8 @@ VerifyBtn.Font = Enum.Font.GothamBold
 VerifyBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
 VerifyBtn.TextSize = 14
 VerifyBtn.Parent = MainFrame
+Instance.new("UICorner", VerifyBtn)
 
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.Parent = VerifyBtn
-
--- Nút Lấy Key
 local GetKeyBtn = Instance.new("TextButton")
 GetKeyBtn.Size = UDim2.new(0, 280, 0, 30)
 GetKeyBtn.Position = UDim2.new(0.5, -140, 0, 160)
@@ -78,39 +77,85 @@ GetKeyBtn.Font = Enum.Font.Gotham
 GetKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 GetKeyBtn.TextSize = 12
 GetKeyBtn.Parent = MainFrame
+Instance.new("UICorner", GetKeyBtn)
 
-local GetKeyCorner = Instance.new("UICorner")
-GetKeyCorner.Parent = GetKeyBtn
-
--- Dòng trạng thái
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Size = UDim2.new(1, 0, 0, 20)
 StatusLabel.Position = UDim2.new(0, 0, 1, -20)
-StatusLabel.Text = "Vui lòng nhập key để tiếp tục"
+StatusLabel.Text = ServerUrl == "" and "⚠️ Lỗi link Server!" or "Vui lòng nhập key để tiếp tục"
 StatusLabel.TextColor3 = Color3.fromRGB(148, 163, 184)
 StatusLabel.TextSize = 12
 StatusLabel.BackgroundTransparency = 1
 StatusLabel.Parent = MainFrame
 
------------------------------------------------------------
--- LOGIC XỬ LÝ
------------------------------------------------------------
+-- --- KHUNG CHAT AI (AICanvas - Ẩn lúc đầu) ---
+local AICanvas = Instance.new("Frame")
+AICanvas.Size = UDim2.new(0, 300, 0, 120)
+AICanvas.Position = UDim2.new(1, -310, 1, -130)
+AICanvas.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
+AICanvas.Visible = false
+AICanvas.Parent = ScreenGui
+Instance.new("UICorner", AICanvas)
 
+local AIInput = Instance.new("TextBox")
+AIInput.Size = UDim2.new(1, -20, 0, 35)
+AIInput.Position = UDim2.new(0, 10, 0, 35)
+AIInput.PlaceholderText = "Hỏi Gemini AI..."
+AIInput.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
+AIInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+AIInput.Parent = AICanvas
+Instance.new("UICorner", AIInput)
+
+local AISend = Instance.new("TextButton")
+AISend.Size = UDim2.new(1, -20, 0, 30)
+AISend.Position = UDim2.new(0, 10, 0, 80)
+AISend.BackgroundColor3 = Color3.fromRGB(56, 189, 248)
+AISend.Text = "HỎI AI"
+AISend.Parent = AICanvas
+Instance.new("UICorner", AISend)
+
+-- ============================================================
+-- 3. LOGIC XỬ LÝ
+-- ============================================================
+
+-- Copy Link Discord
 GetKeyBtn.MouseButton1Click:Connect(function()
     setclipboard(DiscordLink)
     StatusLabel.Text = "Đã copy link Discord!"
-    StatusLabel.TextColor3 = Color3.fromRGB(56, 189, 248)
 end)
 
+-- Chat với Gemini
+AISend.MouseButton1Click:Connect(function()
+    local q = AIInput.Text
+    if q == "" or ServerUrl == "" then return end
+    
+    AISend.Text = "⏳ Đang nghĩ..."
+    local encoded = game:GetService("HttpService"):UrlEncode(q)
+    
+    local success, response = pcall(function()
+        return game:HttpGet(ServerUrl .. "/ask_gemini?question=" .. encoded)
+    end)
+    
+    if success then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "🤖 Gemini:",
+            Text = response,
+            Duration = 8
+        })
+    end
+    AISend.Text = "HỎI AI"
+    AIInput.Text = ""
+end)
+
+-- Xác thực Key
 VerifyBtn.MouseButton1Click:Connect(function()
     local userKey = KeyInput.Text
-    if userKey == "" then 
-        StatusLabel.Text = "Vui lòng nhập key!" 
+    if userKey == "" or ServerUrl == "" then 
+        StatusLabel.Text = "⚠️ Lỗi: Không có link server!" 
         return 
     end
 
-    StatusLabel.Text = "⏳ Đang kết nối server..."
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    StatusLabel.Text = "⏳ Đang kết nối..."
     
     local success, result = pcall(function()
         return game:HttpGet(ServerUrl .. "/checkkey?key=" .. userKey)
@@ -121,30 +166,26 @@ VerifyBtn.MouseButton1Click:Connect(function()
             StatusLabel.Text = "✅ THÀNH CÔNG!"
             StatusLabel.TextColor3 = Color3.fromRGB(34, 197, 94)
             
-            -- Gửi log bí mật về Discord (Không hiện Key trong thông báo bot)
+            -- Gửi Log bí mật về Discord
             pcall(function()
                 game:HttpGet(ServerUrl .. "/log_success?user=" .. playerName .. "&key=" .. userKey)
             end)
 
-            task.wait(0.5)
-            StatusLabel.Text = "✨ Xin chào " .. playerName .. "! Đang tải script..."
             task.wait(1)
+            MainFrame.Visible = false -- Ẩn bảng Verify
+            AICanvas.Visible = true  -- Hiện bảng AI Chat
             
-            ScreenGui:Destroy()
-            
-            -- TẢI SCRIPT CHÍNH QUA LOADSTRING
+            -- Tải Script chính
             loadstring(game:HttpGet(MainScript))()
-            
         elseif result == "expired" then
-            StatusLabel.Text = "❌ Key đã hết hạn sử dụng!"
+            StatusLabel.Text = "❌ Key đã hết hạn!"
             StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
         else
-            StatusLabel.Text = "❌ Key sai hoặc chưa giải CAPTCHA!"
+            StatusLabel.Text = "❌ Key sai/Chưa giải Captcha!"
             StatusLabel.TextColor3 = Color3.fromRGB(239, 68, 68)
         end
     else
-        StatusLabel.Text = "🌐 Lỗi kết nối! Kiểm tra link Cloudflare."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-        warn("Lỗi xác thực: " .. tostring(result))
+        StatusLabel.Text = "🌐 Lỗi Server!"
+        warn("Loi: " .. tostring(result))
     end
 end)
