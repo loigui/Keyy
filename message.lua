@@ -89,13 +89,21 @@ StatusLabel.BackgroundTransparency = 1
 StatusLabel.Parent = MainFrame
 
 -- --- KHUNG CHAT AI (AICanvas - Ẩn lúc đầu) ---
+-- --- KHUNG CHAT AI (AICanvas - Có thể di chuyển) ---
 local AICanvas = Instance.new("Frame")
+AICanvas.Name = "AICanvas"
 AICanvas.Size = UDim2.new(0, 300, 0, 120)
 AICanvas.Position = UDim2.new(1, -310, 1, -130)
 AICanvas.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
+AICanvas.BorderSizePixel = 0
 AICanvas.Visible = false
+AICanvas.Active = true       -- CẦN THIẾT: Để nhận diện thao tác chuột
+AICanvas.Draggable = true    -- CẦN THIẾT: Cho phép kéo thả
 AICanvas.Parent = ScreenGui
-Instance.new("UICorner", AICanvas)
+
+local AICorner = Instance.new("UICorner")
+AICorner.CornerRadius = UDim.new(0, 10)
+AICorner.Parent = AICanvas
 
 local AIInput = Instance.new("TextBox")
 AIInput.Size = UDim2.new(1, -20, 0, 35)
@@ -189,3 +197,4 @@ VerifyBtn.MouseButton1Click:Connect(function()
         warn("Loi: " .. tostring(result))
     end
 end)
+
