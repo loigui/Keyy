@@ -133,25 +133,33 @@ GetKeyBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Chat với Gemini
+-- Trong phần logic của nút AISend
 AISend.MouseButton1Click:Connect(function()
     local q = AIInput.Text
     if q == "" or ServerUrl == "" then return end
     
-    AISend.Text = "⏳ Đang nghĩ..."
+    AISend.Text = "⏳ Đang nhớ lại..."
+    AISend.Active = false
+    
     local encoded = game:GetService("HttpService"):UrlEncode(q)
     
+    -- THÊM THAM SỐ &user= VÀO URL
+    local fullUrl = ServerUrl .. "/ask_gemini?question=" .. encoded .. "&user=" .. playerName
+    
     local success, response = pcall(function()
-        return game:HttpGet(ServerUrl .. "/ask_gemini?question=" .. encoded)
+        return game:HttpGet(fullUrl)
     end)
     
     if success then
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "🤖 Gemini:",
+            Title = "🤖 Gemini AI:",
             Text = response,
-            Duration = 8
+            Duration = 10
         })
     end
+    
     AISend.Text = "HỎI AI"
+    AISend.Active = true
     AIInput.Text = ""
 end)
 
@@ -197,4 +205,5 @@ VerifyBtn.MouseButton1Click:Connect(function()
         warn("Loi: " .. tostring(result))
     end
 end)
+
 
